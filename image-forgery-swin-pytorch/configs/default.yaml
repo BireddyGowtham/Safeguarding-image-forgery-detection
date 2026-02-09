@@ -1,0 +1,11 @@
+batch_size: 32
+learning_rate: 0.0003
+num_epochs: 30
+patience: 7
+model_name: swin_tiny_patch4_window7_224
+save_dir: ./models
+data_dir: ./data
+device: cuda  # Use 'cuda' for GPU or 'cpu' for CPU
+image_size: 224
+num_classes: 2
+pretrained: true

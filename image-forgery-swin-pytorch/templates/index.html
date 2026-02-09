@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Image Forgery Detection</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-orange: #FF9500;
+      --dark-bg: #1a1a1a;
+      --light-bg: #f5f5f5;
+    }
+    
+    body {
+      background-color: var(--light-bg);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .sidebar {
+      background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+      color: white;
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 150px;
+      height: 100vh;
+      padding: 20px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--primary-orange);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .step-list {
+      list-style: none;
+      padding: 0;
+      width: 100%;
+    }
+    
+    .step-item {
+      margin-bottom: 20px;
+      text-align: center;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .step-item.active {
+      background-color: var(--primary-orange);
+      color: white;
+      font-weight: bold;
+    }
+    
+    .step-item:not(.active) {
+      color: #aaa;
+    }
+    
+    .step-item i {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .step-number {
+      font-size: 12px;
+      display: block;
+      margin-bottom: 4px;
+    }
+    
+    .main-content {
+      margin-left: 150px;
+      padding: 40px;
+    }
+    
+    .step-content {
+      display: none;
+    }
+    
+    .step-content.active {
+      display: block;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 3px solid var(--primary-orange);
+      padding-bottom: 15px;
+    }
+    
+    .header-icon {
+      font-size: 48px;
+      color: var(--primary-orange);
+      margin-right: 20px;
+    }
+    
+    .header h2 {
+      color: var(--dark-bg);
+      margin: 0;
+      font-weight: bold;
+    }
+    
+    .upload-area {
+      background: white;
+      border: 2px dashed var(--primary-orange);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .upload-area:hover {
+      background-color: #fff8f0;
+      border-color: #ff8c00;
+    }
+    
+    .upload-area.dragover {
+      background-color: #fff8f0;
+      border-color: #ff8c00;
+    }
+    
+    .upload-icon {
+      font-size: 48px;
+      color: var(--primary-orange);
+      margin-bottom: 20px;
+    }
+    
+    .file-input {
+      display: none;
+    }
+    
+    .btn-upload {
+      background-color: var(--primary-orange);
+      border: none;
+      color: white;
+      font-weight: bold;
+      padding: 12px 30px;
+      border-radius: 6px;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-upload:hover {
+      background-color: #ff8c00;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
+    }
+    
+    .file-list {
+      background: white;
+      border-radius: 12px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+    
+    .file-item {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+      justify-content: space-between;
+    }
+    
+    .file-item:last-child {
+      border-bottom: none;
+    }
+    
+    .file-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+    
+    .file-thumbnail {
+      width: 80px;
+      height: 80px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      margin-right: 20px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .file-thumbnail img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+    }
+    
+    .file-details h5 {
+      margin: 0 0 5px 0;
+      font-weight: bold;
+      color: var(--dark-bg);
+    }
+    
+    .file-details p {
+      margin: 0;
+      color: #999;
+      font-size: 12px;
+    }
+    
+    .result-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+    
+    .result-badge.authentic {
+      background-color: #4caf50;
+      color: white;
+    }
+    
+    .result-badge.forged {
+      background-color: #f44336;
+      color: white;
+    }
+    
+    .confidence-bar {
+      background-color: #ddd;
+      border-radius: 10px;
+      height: 8px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    
+    .confidence-fill {
+      background-color: var(--primary-orange);
+      height: 100%;
+      border-radius: 10px;
+    }
+    
+    .btn-remove {
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 20px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    
+    .btn-remove:hover {
+      color: #f44336;
+    }
+    
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .summary-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      border-left: 4px solid var(--primary-orange);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .summary-card h5 {
+      margin: 0 0 10px 0;
+      color: var(--dark-bg);
+      font-weight: bold;
+    }
+    
+    .summary-card p {
+      margin: 0;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+    }
+    
+    .btn-next {
+      background-color: var(--primary-orange);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-next:hover {
+      background-color: #ff8c00;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
+    }
+    
+    .report-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .report-title {
+      color: var(--primary-orange);
+      font-weight: bold;
+      margin-bottom: 15px;
+      border-bottom: 2px solid var(--primary-orange);
+      padding-bottom: 10px;
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        flex-direction: row;
+        padding: 15px;
+        justify-content: space-around;
+      }
+      
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+      
+      .step-list {
+        display: flex;
+        width: 100%;
+      }
+      
+      .step-item {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% set active = active_step|default(0)|int %}
+  <div class="sidebar">
+    <div class="logo">
+      <i class="bi bi-shield-check"></i>
+      <div style="font-size: 12px; margin-top: 8px;">IFD</div>
+    </div>
+    <ul class="step-list">
+      <li class="step-item {% if active == 0 %}active{% endif %}" onclick="switchStep(0)">
+        <span class="step-number">Step 1</span>
+        <i class="bi bi-cloud-upload"></i>
+        <span>Upload</span>
+      </li>
+      <li class="step-item {% if active == 1 %}active{% endif %}" onclick="switchStep(1)">
+        <span class="step-number">Step 2</span>
+        <i class="bi bi-file-text"></i>
+        <span>Summary</span>
+      </li>
+      <li class="step-item {% if active == 2 %}active{% endif %}" onclick="switchStep(2)">
+        <span class="step-number">Step 3</span>
+        <i class="bi bi-bar-chart"></i>
+        <span>Reports</span>
+      </li>
+      <li class="step-item {% if active == 3 %}active{% endif %}" onclick="switchStep(3)">
+        <span class="step-number">Step 4</span>
+        <i class="bi bi-person"></i>
+        <span>Tools</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <!-- Step 1: Upload -->
+    <div class="step-content {% if active == 0 %}active{% endif %}">
+      <div class="header">
+        <div class="header-icon"><i class="bi bi-cloud-upload"></i></div>
+        <div>
+          <h2>Upload</h2>
+          <p style="margin: 0; color: #999; font-size: 14px;">Add up to 3 images for the demo version</p>
+        </div>
+      </div>
+
+      <form method="post" action="{{ url_for('predict') }}" enctype="multipart/form-data" id="uploadForm">
+        <div class="upload-area" id="uploadArea">
+          <div class="upload-icon"><i class="bi bi-image"></i></div>
+          <h5>Drag and drop your images here</h5>
+          <p style="color: #999; margin: 0;">or</p>
+          <button type="button" class="btn-upload" onclick="document.getElementById('image').click()">
+            <i class="bi bi-folder-open"></i> Browse Files
+          </button>
+          <input type="file" id="image" name="image" accept="image/*" class="file-input" multiple/>
+        </div>
+        <div class="file-list" id="fileList" style="display: none;"></div>
+        <div class="action-buttons" id="actionButtons" style="display: none;">
+          <button type="submit" class="btn-next"><i class="bi bi-arrow-right"></i> Next</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Step 2: Summary -->
+    <div class="step-content {% if active == 1 %}active{% endif %}">
+      <div class="header">
+        <div class="header-icon"><i class="bi bi-file-text"></i></div>
+        <div>
+          <h2>Summary</h2>
+          <p style="margin: 0; color: #999; font-size: 14px;">Review the analysis results</p>
+        </div>
+      </div>
+
+      {% if result %}
+      <div class="summary-grid" id="summaryGrid">
+        <div class="summary-card">
+          <h5><i class="bi bi-check-circle"></i> Result</h5>
+          <p><span class="result-badge {% if result == 'Authentic' %}authentic{% else %}forged{% endif %}">{{ result }}</span></p>
+        </div>
+        <div class="summary-card">
+          <h5><i class="bi bi-percent"></i> Confidence</h5>
+          <p>{{ confidence }}%</p>
+          <div class="confidence-bar">
+            <div class="confidence-fill" style="width: {{ confidence|default(0) }}%;"></div>
+          </div>
+        </div>
+        {% if image_url %}
+        <div class="summary-card" style="grid-column: 1 / -1;">
+          <h5><i class="bi bi-image"></i> Analyzed Image</h5>
+          <img src="{{ image_url }}" alt="uploaded" class="img-fluid border" style="max-height: 300px; border-radius: 8px;"/>
+        </div>
+        {% endif %}
+      </div>
+      <div class="action-buttons" style="margin-top: 20px;">
+        <button type="button" class="btn-next" onclick="switchStep(2)"><i class="bi bi-arrow-right"></i> Next to Reports</button>
+      </div>
+      {% else %}
+      <p style="color: #999; text-align: center; padding: 40px;">No image uploaded yet. Please go to Step 1 and upload an image.</p>
+      {% endif %}
+    </div>
+
+    <!-- Step 3: Reports -->
+    <div class="step-content {% if active == 2 %}active{% endif %}">
+      <div class="header">
+        <div class="header-icon"><i class="bi bi-bar-chart"></i></div>
+        <div>
+          <h2>Reports</h2>
+          <p style="margin: 0; color: #999; font-size: 14px;">Detailed analysis and statistics</p>
+        </div>
+      </div>
+
+      {% if result %}
+      <div class="report-section">
+        <div class="report-title"><i class="bi bi-check-circle"></i> Detection Result</div>
+        <p><strong>Classification:</strong> {{ result }}</p>
+        <p><strong>Confidence Score:</strong> {{ confidence }}%</p>
+        <p><strong>Model Used:</strong> Swin Transformer</p>
+      </div>
+
+      <div class="report-section">
+        <div class="report-title"><i class="bi bi-graph-up"></i> Analysis Details</div>
+        <p><strong>Processing Time:</strong> ~0.5s</p>
+        <p><strong>Image Resolution:</strong> Analyzed</p>
+        <p><strong>Detection Method:</strong> Deep Learning based forgery detection</p>
+        {% if result == 'Forged' %}
+        <p style="color: #f44336;"><strong>Note:</strong> The image shows signs of tampering. Review the anomalies detected in the analysis.</p>
+        {% else %}
+        <p style="color: #4caf50;"><strong>Note:</strong> The image appears to be authentic with no significant signs of tampering.</p>
+        {% endif %}
+      </div>
+
+      <div class="action-buttons">
+        <button type="button" class="btn-next" onclick="switchStep(0)"><i class="bi bi-arrow-left"></i> Back to Upload</button>
+      </div>
+      {% else %}
+      <p style="color: #999; text-align: center; padding: 40px;">No analysis data available. Please upload an image first.</p>
+      {% endif %}
+    </div>
+
+    <!-- Step 4: Tools -->
+    <div class="step-content {% if active == 3 %}active{% endif %}">
+      <div class="header">
+        <div class="header-icon"><i class="bi bi-person"></i></div>
+        <div>
+          <h2>Tools</h2>
+          <p style="margin: 0; color: #999; font-size: 14px;">Additional utilities and settings</p>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="report-title"><i class="bi bi-gear"></i> Settings</div>
+        <p>Model Version: Latest</p>
+        <p>Sensitivity: High</p>
+      </div>
+
+      <div class="report-section">
+        <div class="report-title"><i class="bi bi-question-circle"></i> Help & Support</div>
+        <p>For more information about image forgery detection, visit the documentation.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('image');
+    const fileList = document.getElementById('fileList');
+    const actionButtons = document.getElementById('actionButtons');
+    const steps = document.querySelectorAll('.step-content');
+    const stepItems = document.querySelectorAll('.step-item');
+
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      fileInput.files = e.dataTransfer.files;
+      updateFileList();
+    });
+
+    fileInput.addEventListener('change', updateFileList);
+
+    function updateFileList() {
+      const files = Array.from(fileInput.files);
+      if (files.length > 0) {
+        uploadArea.style.display = 'none';
+        fileList.style.display = 'block';
+        actionButtons.style.display = 'flex';
+        
+        fileList.innerHTML = files.map((file, index) => `
+          <div class="file-item">
+            <div class="file-info">
+              <div class="file-thumbnail">
+                ${file.type.startsWith('image/') ? `<img src="${URL.createObjectURL(file)}" />` : '<i class="bi bi-file"></i>'}
+              </div>
+              <div class="file-details">
+                <h5>${file.name}</h5>
+                <p>${(file.size / 1024).toFixed(2)} KB</p>
+              </div>
+            </div>
+            <button type="button" class="btn-remove" onclick="removeFile(${index})" title="Remove file">
+              <i class="bi bi-x-circle"></i>
+            </button>
+          </div>
+        `).join('');
+      }
+    }
+
+    function removeFile(index) {
+      const files = Array.from(fileInput.files);
+      files.splice(index, 1);
+      
+      const dataTransfer = new DataTransfer();
+      files.forEach(file => dataTransfer.items.add(file));
+      fileInput.files = dataTransfer.files;
+      updateFileList();
+      
+      if (files.length === 0) {
+        uploadArea.style.display = 'block';
+        fileList.style.display = 'none';
+        actionButtons.style.display = 'none';
+      }
+    }
+
+    function switchStep(index) {
+      steps.forEach(step => step.classList.remove('active'));
+      stepItems.forEach(item => item.classList.remove('active'));
+      
+      steps[index].classList.add('active');
+      stepItems[index].classList.add('active');
+    }
+  </script>
+</body>
+</html>

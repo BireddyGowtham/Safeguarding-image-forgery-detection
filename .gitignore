@@ -1,0 +1,78 @@
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+.cache
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+coverage.xml
+nosetests.xml
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Logs and databases
+*.log
+train_log.txt
+*.sqlite3
+*.db
+
+# Models and weights
+# Ignore common model files and the models/ folder (large binaries)
+models/
+*.pth
+*.pt
+*.ckpt
+best_model.pth
+
+# Data and uploads (ignore raw datasets and uploads)
+data/
+image-forgery-swin-pytorch/data/
+static/uploads/
+uploads/
+Review 1/
+
+# Environment and secrets
+.env
+venv/
+env/
+ENV/
+pipenv/
+Pipfile.lock
+
+# OS generated files
+ehthumbs.db
+Icon?
+
+# Notebook checkpoints
+.ipynb_checkpoints/
