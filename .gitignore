@@ -12,9 +12,11 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.venv/
 env/
 venv/
 ENV/
+image-forgery-swin-pytorch/.venv/
 build/
 dist/
 *.egg-info/
@@ -76,3 +78,11 @@ Icon?
 
 # Notebook checkpoints
 .ipynb_checkpoints/
+
+# Image files
+*.png
+*.jpg
+*.jpeg
+*.gif
+Figure_*.png
+second.png
