@@ -52,7 +52,6 @@ train_log.txt
 # Models and weights
 # Ignore common model files and the models/ folder (large binaries)
 models/
-*.pth
 *.pt
 *.ckpt
 best_model.pth
