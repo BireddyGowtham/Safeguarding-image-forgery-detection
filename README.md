@@ -281,13 +281,6 @@ Please follow standard GitHub contribution guidelines.
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License**.  
-See the [LICENSE](./LICENSE) file for full details.
-
----
-
 <div align="center">
   <sub>Built with ❤️ using PyTorch and Swin Transformer</sub>
 </div>
